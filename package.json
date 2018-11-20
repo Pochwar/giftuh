@@ -1,0 +1,16 @@
+{
+  "name": "giftuh",
+  "version": "1.0.0",
+  "description": "Get Images From tweets Using Hashtag",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^6.1.0",
+    "twitter": "^1.7.1"
+  }
+}
