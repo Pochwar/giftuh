@@ -1,4 +1,6 @@
 node_modules
+downloaded_images/*
+!downloaded_images/.gitkeep
 
 .env
 .idea/
