@@ -17,3 +17,4 @@ This project is about to get images from tweets that contains a specific keyword
 - Copy `.env.example` file in `.env` file: `cp .env.example .env`
 - Set your Twitter's Consumer Key, Consumer Secret, Access Token Key & Access Token Secret in the `.env` file (To create some, go to: https://developer.twitter.com/. You need to have a Twitter account)
 - Run the script: `npm start keyword` where "keyword" is the searched term
+- Watch the magic happend and get the retrieved images in a specific subfolder of `downloaded_images` folder.
