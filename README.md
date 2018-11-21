@@ -16,5 +16,4 @@ This project is about to get images from tweets that contains a specific keyword
 - Install dependencies: `npm install`
 - Copy `.env.example` file in `.env` file: `cp .env.example .env`
 - Set your Twitter's Consumer Key, Consumer Secret, Access Token Key & Access Token Secret in the `.env` file (To create some, go to: https://developer.twitter.com/. You need to have a Twitter account)
-- Set the keyword in the `.env` file
-- Run the script: `npm start`
+- Run the script: `npm start keyword` where "keyword" is the searched term
