@@ -27,11 +27,16 @@ else {
 
   client.stream('statuses/filter', {track: keyword}, function(stream) {
     stream.on('data', function(event) {
+      var user_id = event.user.id
+      var user_name = event.user.screen_name
       console.log('########################################')
       console.log(`New result found for keyword: ${keyword}`)
+      console.log(`User ID: ${user_id}`)
+      console.log(`User name: @${user_name}`)
 
       if (event && event.entities && event.entities.media) {
         var media_url = event.entities.media[0].media_url
+        var media_id = event.entities.media[0].id_str
         console.log('One media found :D')
         console.log(`URL: ${media_url}`)
 
@@ -46,7 +51,7 @@ else {
             // Set download options
             var options = {
               url: media_url,
-              dest: path
+              dest: `${path}/${media_id}-@${user_name}-(id:${user_id}).jpg`
             }
 
             // Save image
