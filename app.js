@@ -2,6 +2,7 @@ require('dotenv').config()
 var Twitter = require('twitter');
 var download = require('image-downloader')
 var mkdirp = require('mkdirp')
+var fs = require('fs')
 
 // Set twitter client
 var client = new Twitter({
@@ -37,8 +38,8 @@ else {
       if (event && event.entities && event.entities.media) {
         var media_url = event.entities.media[0].media_url
         var media_id = event.entities.media[0].id_str
-        console.log('One media found :D')
-        console.log(`URL: ${media_url}`)
+        consoleLogYellow('One media found :D')
+        consoleLogYellow(`URL: ${media_url}`)
 
         // Set subfolder path where to save images
         var path = `./downloaded_images/${keyword}`
@@ -54,14 +55,28 @@ else {
               dest: `${path}/${media_id}-@${user_name}-(id:${user_id}).jpg`
             }
 
+            // Check if file is new
+            var isNew = true
+            fs.readdirSync(path).forEach(file => {
+              var pattern = new RegExp(/([0-9]*)(-@)(.*)/gm)
+              var res = pattern.exec(file)
+              if (res[1] == media_id) {
+                isNew = false
+              }
+            })
+
             // Save image
-            download.image(options)
-              .then(({ filename, image }) => {
-                console.log(`File saved to: ${filename}`)
-              })
-              .catch((err) => {
-                console.error(err)
-              })
+            if (isNew) {
+              download.image(options)
+                .then(({ filename, image }) => {
+                  consoleLogGreen(`File saved to: ${filename}`)
+                })
+                .catch((err) => {
+                  console.error(err)
+                })
+            } else {
+              consoleLogRed("File already exists, download aborted")
+            }
           }
         })
 
@@ -74,4 +89,16 @@ else {
       console.log(`Error: ${error}`);
     });
   });
+}
+
+
+// Colored console log
+var consoleLogYellow = function(string) {
+  console.log('\x1b[33m', string, '\x1b[0m')
+}
+var consoleLogRed = function(string) {
+  console.log('\x1b[31m', string, '\x1b[0m')
+}
+var consoleLogGreen = function(string) {
+  console.log('\x1b[32m', string, '\x1b[0m')
 }
