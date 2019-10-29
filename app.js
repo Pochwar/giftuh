@@ -55,18 +55,8 @@ else {
               dest: `${path}/${media_id}-@${user_name}-(id:${user_id}).jpg`
             }
 
-            // Check if file is new
-            var isNew = true
-            fs.readdirSync(path).forEach(file => {
-              var pattern = new RegExp(/([0-9]*)(-@)(.*)/gm)
-              var res = pattern.exec(file)
-              if (res[1] == media_id) {
-                isNew = false
-              }
-            })
-
-            // Save image
-            if (isNew) {
+            // Save image if new
+            if (isNew(media_id, path)) {
               download.image(options)
                 .then(({ filename, image }) => {
                   consoleLogGreen(`File saved to: ${filename}`)
@@ -101,4 +91,13 @@ var consoleLogRed = function(string) {
 }
 var consoleLogGreen = function(string) {
   console.log('\x1b[32m', string, '\x1b[0m')
+}
+
+// Check if file is new
+var isNew = function(media_id, path) {
+  fs.readdirSync(path).forEach(file => {
+    var pattern = new RegExp(/([0-9]*)(-@)(.*)/gm)
+    var res = pattern.exec(file)
+    return res[1] != media_id;
+  })
 }
