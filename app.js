@@ -1,16 +1,8 @@
 require('dotenv').config()
-const Twitter = require('twitter');
 const download = require('image-downloader');
 const mkdirp = require('mkdirp');
 const fs = require('fs');
-
-// Set twitter client
-const client = new Twitter({
-  consumer_key: process.env.TWITTER_CONSUMER_KEY,
-  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-  access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-});
+const { TwitterApi, ETwitterStreamEvent } = require('twitter-api-v2');
 
 // Get keyword from command line
 const keyword = process.argv[2];
@@ -39,6 +31,13 @@ const isNew = function(media_id, path) {
   return true;
 };
 
+const twitterClient = new TwitterApi({
+  appKey: process.env.TWITTER_CONSUMER_KEY,
+  appSecret: process.env.TWITTER_CONSUMER_SECRET,
+  accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
+  accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+});
+
 // Send error message if keyword is undefined
 if (keyword === undefined) {
   console.log('Please provide a search keyword. Use the command "npm start keyword"')
@@ -50,8 +49,9 @@ else {
   console.log(`# Looking for "${keyword}" images in tweets `)
   console.log('###########################################')
 
-  client.stream('statuses/filter', {track: keyword}, function(stream) {
-    stream.on('data', function(event) {
+  twitterClient.v1.stream.getStream('statuses/filter.json', {track: keyword})
+    .then((stream) => {
+      stream.on(ETwitterStreamEvent.Data, function(event) {
       const user_id = event.user.id;
       const user_name = event.user.screen_name;
       console.log('########################################')
@@ -66,7 +66,7 @@ else {
         consoleLogYellow(`URL: ${media_url}`)
 
         // Set subfolder path where to save images
-        const path = `./downloaded_images/${keyword}`;
+        const path = `downloaded_images/${keyword}`;
 
         // Create subfolder if not exist
         mkdirp(path, function(err) {
@@ -76,7 +76,7 @@ else {
             // Set download options
             const options = {
               url: media_url,
-              dest: `${path}/${media_id}-@${user_name}-(id:${user_id}).jpg`,
+              dest: `${__dirname}/${path}/${media_id}-@${user_name}-(id:${user_id}).jpg`,
             };
 
             // Save image if new
@@ -99,8 +99,8 @@ else {
       }
     });
 
-    stream.on('error', function(error) {
-      console.log(`Error: ${error}`);
-    });
+      stream.on('error', function(error) {
+        console.log(`Error: ${error}`);
+      });
   });
 }
