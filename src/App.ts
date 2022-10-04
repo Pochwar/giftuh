@@ -1,21 +1,14 @@
 import { ETwitterStreamEvent, TweetStream } from 'twitter-api-v2';
 const { TwitterApi } = require('twitter-api-v2');
-require('dotenv').config()
-import download = require('image-downloader');
-import { DownloadResult } from 'image-downloader';
+import download, { DownloadResult } from 'image-downloader';
 const mkdirp = require('mkdirp');
-const fs = require('fs');
+import fs from 'fs';
 
 export default class App {
   private twitterClient: any;
 
-  constructor() {
-    this.twitterClient = new TwitterApi({
-      appKey: process.env.TWITTER_CONSUMER_KEY,
-      appSecret: process.env.TWITTER_CONSUMER_SECRET,
-      accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
-      accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-    });
+  constructor(appKey: string, appSecret: string, accessToken: string, accessSecret: string) {
+    this.twitterClient = new TwitterApi({ appKey, appSecret, accessToken, accessSecret });
   }
 
   public run(keyword: string): void {
