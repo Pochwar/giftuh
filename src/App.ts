@@ -7,11 +7,18 @@ import fs from 'fs';
 export default class App {
   private twitterClient: any;
 
+  private path!: string;
+
   constructor(appKey: string, appSecret: string, accessToken: string, accessSecret: string) {
     this.twitterClient = new TwitterApi({ appKey, appSecret, accessToken, accessSecret });
   }
 
+  private setPath(path: string): void {
+    this.path = path;
+  }
+
   public run(keyword: string): void {
+    this.setPath(`downloaded_images/${keyword}`);
     console.log('###########################################')
     console.log(`# Looking for "${keyword}" images in tweets `)
     console.log('###########################################')
@@ -47,7 +54,7 @@ export default class App {
                 };
 
                 // Save image if new
-                if (this.isNew(media_id, path)) {
+                if (this.isNew(media_id)) {
                   download.image(options)
                     .then((result: DownloadResult) => {
                       this.consoleLogGreen(`File saved to: ${result.filename}`)
@@ -72,15 +79,17 @@ export default class App {
       });
   }
 
-  private isNew(media_id: string, path: string): boolean {
-    fs.readdirSync(path).forEach((file: string) => {
+  private isNew(media_id: string): boolean {
+    let isNew = true;
+    fs.readdirSync(this.path).forEach((file: string) => {
       const pattern = new RegExp(/([0-9]*)(-@)(.*)/gm)
       const res = pattern.exec(file)
       if (res && res[1] === media_id) {
-        return false;
+        isNew = false;
       }
     })
-    return true;
+
+    return isNew;
   }
 
   private consoleLogGreen = function(s: string) {
