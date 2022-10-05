@@ -1,13 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var twitter_api_v2_1 = require("twitter-api-v2");
 var TwitterApi = require('twitter-api-v2').TwitterApi;
-require('dotenv').config();
-var download = require("image-downloader");
+var image_downloader_1 = __importDefault(require("image-downloader"));
 var mkdirp = require('mkdirp');
-var fs = require('fs');
+var fs_1 = __importDefault(require("fs"));
 var App = /** @class */ (function () {
-    function App() {
+    function App(appKey, appSecret, accessToken, accessSecret) {
         this.consoleLogGreen = function (s) {
             console.log('\x1b[32m', s, '\x1b[0m');
         };
@@ -17,15 +19,14 @@ var App = /** @class */ (function () {
         this.consoleLogYellow = function (s) {
             console.log('\x1b[33m', s, '\x1b[0m');
         };
-        this.twitterClient = new TwitterApi({
-            appKey: process.env.TWITTER_CONSUMER_KEY,
-            appSecret: process.env.TWITTER_CONSUMER_SECRET,
-            accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
-            accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-        });
+        this.twitterClient = new TwitterApi({ appKey: appKey, appSecret: appSecret, accessToken: accessToken, accessSecret: accessSecret });
     }
+    App.prototype.setPath = function (path) {
+        this.path = path;
+    };
     App.prototype.run = function (keyword) {
         var _this = this;
+        this.setPath("downloaded_images/".concat(keyword));
         console.log('###########################################');
         console.log("# Looking for \"".concat(keyword, "\" images in tweets "));
         console.log('###########################################');
@@ -57,8 +58,8 @@ var App = /** @class */ (function () {
                                 dest: "".concat(__dirname, "/../").concat(path_1, "/").concat(media_id_1, "-@").concat(user_name, "-(id:").concat(user_id, ").jpg"),
                             };
                             // Save image if new
-                            if (_this.isNew(media_id_1, path_1)) {
-                                download.image(options)
+                            if (_this.isNew(media_id_1)) {
+                                image_downloader_1.default.image(options)
                                     .then(function (result) {
                                     _this.consoleLogGreen("File saved to: ".concat(result.filename));
                                 })
@@ -81,15 +82,16 @@ var App = /** @class */ (function () {
             });
         });
     };
-    App.prototype.isNew = function (media_id, path) {
-        fs.readdirSync(path).forEach(function (file) {
+    App.prototype.isNew = function (media_id) {
+        var isNew = true;
+        fs_1.default.readdirSync(this.path).forEach(function (file) {
             var pattern = new RegExp(/([0-9]*)(-@)(.*)/gm);
             var res = pattern.exec(file);
             if (res && res[1] === media_id) {
-                return false;
+                isNew = false;
             }
         });
-        return true;
+        return isNew;
     };
     return App;
 }());
