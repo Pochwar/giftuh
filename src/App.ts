@@ -9,20 +9,27 @@ export default class App {
 
   private path!: string;
 
-  constructor(appKey: string, appSecret: string, accessToken: string, accessSecret: string) {
-    this.twitterClient = new TwitterApi({ appKey, appSecret, accessToken, accessSecret });
+  constructor(appKey: string, appSecret: string, accessToken: string, accessSecret: string, bearerAccessToken: string) {
+    // Connect with consumer keys and secret
+    // this.twitterClient = new TwitterApi({ appKey, appSecret, accessToken, accessSecret });
+
+    // Connect with bearer access token for V2
+    this.twitterClient = new TwitterApi(bearerAccessToken);
   }
 
   private setPath(path: string): void {
     this.path = path;
   }
 
-  public run(keyword: string): void {
+  public async run(keyword: string): Promise<void> {
     this.setPath(`downloaded_images/${keyword}`);
     console.log('###########################################')
     console.log(`# Looking for "${keyword}" images in tweets `)
     console.log('###########################################')
 
+    const streamFilter = await this.twitterClient.v2.getStream('tweets/sample/stream');
+
+    /*
     this.twitterClient.v1.stream.getStream('statuses/filter.json', {track: keyword})
       .then((stream: TweetStream<any>) => {
         stream.on(ETwitterStreamEvent.Data, (event) => {
@@ -77,6 +84,7 @@ export default class App {
           console.log(`Error: ${error}`);
         });
       });
+      */
   }
 
   private isNew(media_id: string): boolean {

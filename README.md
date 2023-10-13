@@ -1,6 +1,10 @@
 # GIFTUH
 Get Images From Tweets Using Hashtag
 
+## Warning
+### Update 13/10/2023
+This project is no longer maintained since there are some limitations with the twitter API that stop me for being able to access Twitter's feed with my free account anymore
+
 ## Description
 This project is about to get images from tweets that contains a specific keyword or hashtag. Images will be downloaded into the `downloaded_images` folder.
 
