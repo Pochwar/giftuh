@@ -6,14 +6,16 @@ if (
   || process.env.TWITTER_CONSUMER_SECRET === undefined
   || process.env.TWITTER_ACCESS_TOKEN_KEY === undefined
   || process.env.TWITTER_ACCESS_TOKEN_SECRET === undefined
+  || process.env.TWITTER_BEARER_ACCESS_TOKEN === undefined
 ) {
-  console.log('Please provide Twitter\'s Consumer Key, Consumer Secret, Access Token Key & Access Token Secret in .env file')
+  console.log('Please provide Twitter\'s Consumer Key, Consumer Secret, Access Token Key, Access Token Secret and Bearer access token in .env file')
 } else {
   const app = new App(
     process.env.TWITTER_CONSUMER_KEY,
     process.env.TWITTER_CONSUMER_SECRET,
     process.env.TWITTER_ACCESS_TOKEN_KEY,
-    process.env.TWITTER_ACCESS_TOKEN_SECRET
+    process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    process.env.TWITTER_BEARER_ACCESS_TOKEN,
   );
 
   // Get keyword from command line

@@ -1,15 +1,51 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var twitter_api_v2_1 = require("twitter-api-v2");
 var TwitterApi = require('twitter-api-v2').TwitterApi;
-var image_downloader_1 = __importDefault(require("image-downloader"));
 var mkdirp = require('mkdirp');
 var fs_1 = __importDefault(require("fs"));
 var App = /** @class */ (function () {
-    function App(appKey, appSecret, accessToken, accessSecret) {
+    function App(appKey, appSecret, accessToken, accessSecret, bearerAccessToken) {
+        // Connect with consumer keys and secret
+        // this.twitterClient = new TwitterApi({ appKey, appSecret, accessToken, accessSecret });
         this.consoleLogGreen = function (s) {
             console.log('\x1b[32m', s, '\x1b[0m');
         };
@@ -19,66 +55,27 @@ var App = /** @class */ (function () {
         this.consoleLogYellow = function (s) {
             console.log('\x1b[33m', s, '\x1b[0m');
         };
-        this.twitterClient = new TwitterApi({ appKey: appKey, appSecret: appSecret, accessToken: accessToken, accessSecret: accessSecret });
+        // Connect with bearer access token for V2
+        this.twitterClient = new TwitterApi(bearerAccessToken);
     }
     App.prototype.setPath = function (path) {
         this.path = path;
     };
     App.prototype.run = function (keyword) {
-        var _this = this;
-        this.setPath("downloaded_images/".concat(keyword));
-        console.log('###########################################');
-        console.log("# Looking for \"".concat(keyword, "\" images in tweets "));
-        console.log('###########################################');
-        this.twitterClient.v1.stream.getStream('statuses/filter.json', { track: keyword })
-            .then(function (stream) {
-            stream.on(twitter_api_v2_1.ETwitterStreamEvent.Data, function (event) {
-                var user_id = event.user.id;
-                var user_name = event.user.screen_name;
-                console.log('########################################');
-                console.log("New result found for keyword: ".concat(keyword));
-                console.log("User ID: ".concat(user_id));
-                console.log("User name: @".concat(user_name));
-                if (event && event.entities && event.entities.media) {
-                    var media_url_1 = event.entities.media[0].media_url;
-                    var media_id_1 = event.entities.media[0].id_str;
-                    _this.consoleLogYellow('One media found :D');
-                    _this.consoleLogYellow("URL: ".concat(media_url_1));
-                    // Set subfolder path where to save images
-                    var path_1 = "downloaded_images/".concat(keyword);
-                    // Create subfolder if not exist
-                    mkdirp("".concat(__dirname, "/../").concat(path_1), function (err) {
-                        if (err) {
-                            console.error(err);
-                        }
-                        else {
-                            // Set download options
-                            var options = {
-                                url: media_url_1,
-                                dest: "".concat(__dirname, "/../").concat(path_1, "/").concat(media_id_1, "-@").concat(user_name, "-(id:").concat(user_id, ").jpg"),
-                            };
-                            // Save image if new
-                            if (_this.isNew(media_id_1)) {
-                                image_downloader_1.default.image(options)
-                                    .then(function (result) {
-                                    _this.consoleLogGreen("File saved to: ".concat(result.filename));
-                                })
-                                    .catch(function (err) {
-                                    console.error(err);
-                                });
-                            }
-                            else {
-                                _this.consoleLogRed("File already exists, download aborted");
-                            }
-                        }
-                    });
+        return __awaiter(this, void 0, void 0, function () {
+            var streamFilter;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.setPath("downloaded_images/".concat(keyword));
+                        console.log('###########################################');
+                        console.log("# Looking for \"".concat(keyword, "\" images in tweets "));
+                        console.log('###########################################');
+                        return [4 /*yield*/, this.twitterClient.v2.getStream('tweets/sample/stream')];
+                    case 1:
+                        streamFilter = _a.sent();
+                        return [2 /*return*/];
                 }
-                else {
-                    console.log('No media found :/');
-                }
-            });
-            stream.on(twitter_api_v2_1.ETwitterStreamEvent.Error, function (error) {
-                console.log("Error: ".concat(error));
             });
         });
     };
